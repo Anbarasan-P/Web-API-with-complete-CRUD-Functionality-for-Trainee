@@ -1,10 +1,11 @@
-﻿
+﻿using System.Text.Json.Serialization;
 
 namespace Trainee_webAPI.Models
 
 {
     public class Trainee
     {
+        [JsonIgnore]
         public int TraineeID { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }

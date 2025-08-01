@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.SqlClient;
+using System.Data;
 using Trainee_webAPI.Models;
 
 
@@ -13,11 +14,12 @@ public class TraineeRepository
     public List<Trainee> GetAll()
     {
         var list = new List<Trainee>();
-        using (SqlConnection con = new SqlConnection(_connectionString))
+        using (SqlConnection connection = new SqlConnection(_connectionString))
         {
-            SqlCommand cmd = new SqlCommand("usp_GetAllTrainees", con);
-            con.Open();
-            SqlDataReader reader = cmd.ExecuteReader();
+            SqlCommand command = new SqlCommand("usp_GetAllTrainees", connection);
+            command.CommandType = CommandType.StoredProcedure;
+            connection.Open();
+            SqlDataReader reader = command.ExecuteReader();
             while (reader.Read())
             {
                 list.Add(new Trainee
@@ -33,6 +35,7 @@ public class TraineeRepository
                     Password = reader["Password"].ToString()
                 });
             }
+            connection.Close();
         }
         return list;
     }
@@ -40,12 +43,13 @@ public class TraineeRepository
     public Trainee GetByEmail(string email)
     {
         Trainee trainee = null;
-        using (SqlConnection con = new SqlConnection(_connectionString))
+        using (SqlConnection connection = new SqlConnection(_connectionString))
         {
-            SqlCommand cmd = new SqlCommand("SELECT * FROM Trainees WHERE Email = @Email", con);
-            cmd.Parameters.AddWithValue("@Email", email);
-            con.Open();
-            SqlDataReader reader = cmd.ExecuteReader();
+            SqlCommand command = new SqlCommand("usp_GetTraineeByEmail", connection);
+            command.CommandType = CommandType.StoredProcedure;
+            command.Parameters.AddWithValue("@Email", email);
+            connection.Open();
+            SqlDataReader reader = command.ExecuteReader();
             if (reader.Read())
             {
                 trainee = new Trainee
@@ -67,48 +71,60 @@ public class TraineeRepository
 
     public void Create(Trainee trainee)
     {
-        using (SqlConnection con = new SqlConnection(_connectionString))
+        using (SqlConnection connection = new SqlConnection(_connectionString))
         {
-            SqlCommand cmd = new SqlCommand("usp_InsertTrainee", con);
-            cmd.Parameters.AddWithValue("@Name", trainee.Name);
-            cmd.Parameters.AddWithValue("@Email", trainee.Email);
-            cmd.Parameters.AddWithValue("@PhoneNumber", trainee.PhoneNumber);
-            cmd.Parameters.AddWithValue("@Department", trainee.Department);
-            cmd.Parameters.AddWithValue("@JoiningDate", trainee.JoiningDate);
-            cmd.Parameters.AddWithValue("@Gender", trainee.Gender);
-            cmd.Parameters.AddWithValue("@Photo", trainee.Photo ?? (object)DBNull.Value);
-            cmd.Parameters.AddWithValue("@Password", trainee.Password);
-            con.Open();
-            cmd.ExecuteNonQuery();
+            SqlCommand command = new SqlCommand("usp_CreateTrainee", connection);
+            command.CommandType = CommandType.StoredProcedure;
+
+            // Set all parameters required by usp_CreateTrainee
+            command.Parameters.AddWithValue("@Name", trainee.Name);
+            command.Parameters.AddWithValue("@Email", trainee.Email);
+            command.Parameters.AddWithValue("@PhoneNumber", trainee.PhoneNumber);
+            command.Parameters.AddWithValue("@Department", trainee.Department);
+            command.Parameters.AddWithValue("@JoiningDate", trainee.JoiningDate);
+            command.Parameters.AddWithValue("@Gender", trainee.Gender);
+            command.Parameters.AddWithValue("@Photo", trainee.Photo ?? (object)DBNull.Value);  // Handle null photo
+            command.Parameters.AddWithValue("@Password", trainee.Password);
+
+            connection.Open();
+            command.ExecuteNonQuery();
         }
     }
+
 
     public void Update(Trainee trainee)
     {
-        using (SqlConnection con = new SqlConnection(_connectionString))
+        using (SqlConnection connection = new SqlConnection(_connectionString))
         {
-            SqlCommand cmd = new SqlCommand("usp_UpdateTrainee", con);
-            cmd.Parameters.AddWithValue("@Name", trainee.Name);
-            cmd.Parameters.AddWithValue("@PhoneNumber", trainee.PhoneNumber);
-            cmd.Parameters.AddWithValue("@Department", trainee.Department);
-            cmd.Parameters.AddWithValue("@JoiningDate", trainee.JoiningDate);
-            cmd.Parameters.AddWithValue("@Gender", trainee.Gender);
-            cmd.Parameters.AddWithValue("@Photo", trainee.Photo ?? (object)DBNull.Value);
-            cmd.Parameters.AddWithValue("@Password", trainee.Password);
-            cmd.Parameters.AddWithValue("@Email", trainee.Email);
-            con.Open();
-            cmd.ExecuteNonQuery();
+            SqlCommand command = new SqlCommand("usp_UpdateTrainee", connection);
+            command.CommandType = CommandType.StoredProcedure;
+
+            command.Parameters.AddWithValue("@TraineeID", trainee.TraineeID);
+            command.Parameters.AddWithValue("@Name", trainee.Name);
+            command.Parameters.AddWithValue("@Email", trainee.Email);
+            command.Parameters.AddWithValue("@PhoneNumber", trainee.PhoneNumber);
+            command.Parameters.AddWithValue("@Department", trainee.Department);
+            command.Parameters.AddWithValue("@JoiningDate", trainee.JoiningDate);
+            command.Parameters.AddWithValue("@Gender", trainee.Gender);
+            command.Parameters.AddWithValue("@Photo", trainee.Photo ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("@Password", trainee.Password);
+
+            connection.Open();
+            command.ExecuteNonQuery();
         }
     }
 
+
     public void Delete(string email)
     {
-        using (SqlConnection con = new SqlConnection(_connectionString))
+        using (SqlConnection connection = new SqlConnection(_connectionString))
         {
-            SqlCommand cmd = new SqlCommand("DELETE FROM Trainees WHERE Email=@Email", con);
-            cmd.Parameters.AddWithValue("@Email", email);
-            con.Open();
-            cmd.ExecuteNonQuery();
+            SqlCommand command = new SqlCommand("usp_DeleteTraineeByEmail", connection);
+            command.CommandType = CommandType.StoredProcedure;
+
+            command.Parameters.AddWithValue("@Email", email);
+            connection.Open();
+            command.ExecuteNonQuery();
         }
     }
 }

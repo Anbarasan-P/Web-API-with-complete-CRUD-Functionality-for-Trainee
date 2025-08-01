@@ -1,16 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Trainee_webAPI.Models;
+
 [ApiController]
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
     private readonly TraineeRepository _dataAccessLayer;
-    private readonly JwtService _jsonWebToken;
+    private readonly JwtService _jwtService;
 
     public AuthController(IConfiguration config)
     {
         _dataAccessLayer = new TraineeRepository(config);
-        _jsonWebToken = new JwtService(config);
+        _jwtService = new JwtService(config);
     }
 
     [HttpPost("login")]
@@ -21,8 +22,7 @@ public class AuthController : ControllerBase
         if (user == null || user.Password != login.Password)
             return Unauthorized("Invalid credentials");
 
-        var token = _jsonWebToken.GenerateToken(user.Email);
+        var token = _jwtService.GenerateToken(user.Email);
         return Ok(new { Token = token });
     }
 }
-
