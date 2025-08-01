@@ -1,5 +1,4 @@
-﻿using System;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
@@ -22,8 +21,8 @@ public class JwtService
 
         var claims = new[]
         {
-        new Claim(ClaimTypes.Email, email)
-    };
+            new Claim(ClaimTypes.Email, email)
+        };
 
         // Safer parsing — fallback to 1 day if value is null or invalid
         double expireDays = double.TryParse(_expDate, out var days) ? days : 1;
@@ -35,6 +34,4 @@ public class JwtService
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
-
 }
-
