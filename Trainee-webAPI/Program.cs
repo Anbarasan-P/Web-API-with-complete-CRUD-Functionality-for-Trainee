@@ -1,78 +1,7 @@
-﻿//using Microsoft.AspNetCore.Authentication.JwtBearer;
-//using Microsoft.IdentityModel.Tokens;
-//using Microsoft.OpenApi.Models;
-//using System.Text;
-
-//var builder = WebApplication.CreateBuilder(args);
-
-//builder.Services.AddControllers();
-//builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-//    .AddJwtBearer(options =>
-//    {
-//        options.TokenValidationParameters = new TokenValidationParameters
-//        {
-//            ValidateIssuer = false,
-//            ValidateAudience = false,
-//            ValidateLifetime = true,
-//            ValidateIssuerSigningKey = true,
-//            IssuerSigningKey = new SymmetricSecurityKey(
-//                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)
-//            )
-//        };
-//    });
-//builder.Services.AddAuthorization();
-
-//// ✅ Swagger Config with JWT Support
-//builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen(c =>
-//{
-//    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Trainee API", Version = "v1" });
-
-//    var securityScheme = new OpenApiSecurityScheme
-//    {
-//        Name = "Authorization",
-//        Type = SecuritySchemeType.Http,
-//        Scheme = "bearer",
-//        BearerFormat = "JWT",
-//        In = ParameterLocation.Header,
-//        Description = "Enter your JWT token like this: Bearer {your token}",
-
-//        Reference = new OpenApiReference
-//        {
-//            Type = ReferenceType.SecurityScheme,
-//            Id = "Bearer"
-//        }
-//    };
-
-//    c.AddSecurityDefinition("Bearer", securityScheme);
-
-//    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-//    {
-//        { securityScheme, Array.Empty<string>() }
-//    });
-//});
-
-//var app = builder.Build();
-
-//// Middleware
-//app.UseAuthentication();
-//app.UseAuthorization();
-
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
-//}
-
-//app.MapControllers();
-
-//app.Run();
-
-
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Text;
+using System.Text; // Ensure you have the necessary using directives for ASP.NET Core and JWT
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -91,14 +20,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthorization();
-builder.Services.AddControllers();
+builder.Services.AddAuthorization(); // Add authorization services
+builder.Services.AddControllers(); // Add controllers to the service collection
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
+builder.Services.AddSwaggerGen(options => //  Configure Swagger
 {
-    options.SwaggerDoc("v1", new OpenApiInfo { Title = "Trainee API", Version = "v1" });
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "Trainee API", Version = "v1" }); // Define the Swagger document
 
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme // Define the security scheme for JWT Bearer
     {
         Name = "Authorization",
         Type = SecuritySchemeType.ApiKey,
@@ -108,8 +37,8 @@ builder.Services.AddSwaggerGen(options =>
         Description = "Enter 'Bearer {your JWT token}'"
     });
 
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement // Define the security requirement for the API
+    { 
         {
             new OpenApiSecurityScheme
             {
@@ -119,14 +48,14 @@ builder.Services.AddSwaggerGen(options =>
                     Id = "Bearer"
                 }
             },
-            Array.Empty<string>()
+            Array.Empty<string>() // No specific scopes required for this API
         }
     });
 });
 
 var app = builder.Build();
 
-app.UseAuthentication();
+app.UseAuthentication(); // Use authentication middleware without this line, the JWT authentication won't be applied
 app.UseAuthorization();
 
 if (app.Environment.IsDevelopment())

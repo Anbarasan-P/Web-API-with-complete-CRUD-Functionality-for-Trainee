@@ -2,20 +2,20 @@
 using Trainee_webAPI.Models;
 
 [ApiController]
-[Route("api/[controller]")]
-public class AuthController : ControllerBase
+[Route("api/[controller]")] // This route will be used for authentication
+public class AuthController : ControllerBase // ControllerBase is used for API controllers
 {
-    private readonly TraineeRepository _dataAccessLayer;
-    private readonly JwtService _jwtService;
+    private readonly TraineeRepository _dataAccessLayer; // Data access layer for trainee operations
+    private readonly JwtService _jwtService; // Service for handling JWT operations
 
-    public AuthController(IConfiguration config)
+    public AuthController(IConfiguration config) // Constructor to initialize the data access layer and JWT service
     {
         _dataAccessLayer = new TraineeRepository(config);
         _jwtService = new JwtService(config);
     }
 
-    [HttpPost("login")]
-    public IActionResult Login([FromBody] LoginModel login)
+    [HttpPost("login")] // Route for user login
+    public IActionResult Login([FromBody] LoginModel login) // Method to handle user login
     {
         var user = _dataAccessLayer.GetByEmail(login.Email);
 
